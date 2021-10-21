@@ -4,9 +4,7 @@ import {jsx} from '@emotion/core'
 import * as React from 'react'
 import Tooltip from '@reach/tooltip'
 import {FaSearch, FaTimes} from 'react-icons/fa'
-// 🐨 you'll need useQuery from 'react-query'
-import {useAsync} from 'utils/hooks'
-import {client} from 'utils/api-client'
+import {useBookSearch, refetchBookSearchQuery} from 'utils/books'
 import * as colors from 'styles/colors'
 import {BookRow} from 'components/book-row'
 import {BookListUL, Spinner, Input} from 'components/lib'
@@ -33,20 +31,16 @@ function DiscoverBooksScreen({user}) {
   // the queryKey should be ['bookSearch', {query}]
   // the queryFn should be the same thing we have in the run function below
   // you'll get back the same stuff you get from useAsync, (except the run function)
-  const {data, error, run, isLoading, isError, isSuccess} = useAsync()
-
-  const books = data ?? loadingBooks
+  const {data, error, isLoading, isError, isSuccess} = useBookSearch(
+    query,
+    user,
+  )
 
   React.useEffect(() => {
-    if (!queried) {
-      return
-    }
-    run(
-      client(`books?query=${encodeURIComponent(query)}`, {
-        token: user.token,
-      }).then(data => data.books),
-    )
-  }, [query, queried, run, user.token])
+    return () => refetchBookSearchQuery(user)
+  }, [user])
+
+  const books = data ?? loadingBooks
 
   function handleSearchSubmit(event) {
     event.preventDefault()
