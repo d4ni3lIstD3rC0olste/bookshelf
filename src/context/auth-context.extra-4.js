@@ -12,6 +12,7 @@ async function getUser() {
   let user = null
 
   const token = await auth.getToken()
+  console.log(token)
   if (token) {
     const data = await client('me', {token})
     user = data.user
